@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     collection_timeout_seconds: int = 30
-    collection_prefix_limit: int = 5
+    collection_prefix_limit: int = 50
 
     model_config = SettingsConfigDict(
         env_file=".env",
