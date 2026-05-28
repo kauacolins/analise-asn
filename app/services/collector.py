@@ -51,14 +51,23 @@ class CollectorService:
                 flush=True,
             )
 
-            for prefix in limited_prefixes:
+            for index, prefix in enumerate(limited_prefixes, start=1):
                 prefixes_attempted += 1
+                print(
+                    f"[collector] AS{item.asn} prefix {index}/{len(limited_prefixes)}: {prefix}",
+                    flush=True,
+                )
                 try:
                     bgp_states = self.ripe_client.get_bgp_state(prefix)
                 except RequestException as exc:
                     prefixes_failed += 1
                     print(f"[collector] Skipping prefix {prefix} after RIPE Stat failure: {exc}", flush=True)
                     continue
+
+                print(
+                    f"[collector] Prefix {prefix} returned {len(bgp_states)} bgp_state entries",
+                    flush=True,
+                )
 
                 for state in bgp_states:
                     as_path = self._normalize_path(state.get("path", []))
@@ -97,8 +106,14 @@ class CollectorService:
                     if detected_mitigator is not None:
                         mitigated_routes += 1
 
-            # Persiste o progresso ao fim de cada ASN para reduzir perda em execucoes longas.
-            self.db.commit()
+                # Em modo de teste, persistimos por prefixo para enxergar progresso no banco.
+                self.db.commit()
+                print(
+                    f"[collector] Prefix {prefix} persisted; "
+                    f"routes_saved={routes_saved}, mitigated_routes={mitigated_routes}",
+                    flush=True,
+                )
+
             asns_completed += 1
             print(
                 f"[collector] Finished AS{item.asn}: "
