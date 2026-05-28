@@ -1,0 +1,47 @@
+name: Hourly BGP Collector
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hourly-bgp-collector
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      COLLECTION_TIMEOUT_SECONDS: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "DATABASE_URL secret is required for the hourly collector."
+            echo "Configure a persistent PostgreSQL connection string in GitHub repository secrets."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run BGP collection
+        run: python collect_bgp.py

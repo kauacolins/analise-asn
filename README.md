@@ -327,6 +327,29 @@ Exemplo:
 
 ---
 
+## GitHub Actions
+
+O repositÃ³rio agora possui um workflow em `.github/workflows/hourly-collector.yml` com:
+
+* execuÃ§Ã£o automÃ¡tica `0 * * * *` (uma vez por hora);
+* disparo manual via `workflow_dispatch`.
+
+Para a coleta horÃ¡ria funcionar com persistÃªncia, configure o secret do repositÃ³rio:
+
+```txt
+DATABASE_URL
+```
+
+Exemplo:
+
+```txt
+postgresql+psycopg2://usuario:senha@host:5432/banco
+```
+
+Sem esse secret, o workflow falharÃ¡ de forma explÃ­cita porque o GitHub Actions nÃ£o compartilha o PostgreSQL local da sua mÃ¡quina.
+
+---
+
 # Stack Recomendada
 
 ## Backend
