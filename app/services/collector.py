@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from time import perf_counter
 
 from requests import RequestException
 from sqlalchemy import select
@@ -17,6 +18,7 @@ class CollectorService:
 
     def run(self) -> CollectorRunResponse:
         # Percorre ASN monitorados, filtra /24, consulta o estado BGP e persiste os snapshots.
+        started_at = perf_counter()
         monitored = self.db.query(MonitoredAsn).order_by(MonitoredAsn.asn).all()
         mitigator_map = {
             mitigator.asn: mitigator.nome
@@ -24,8 +26,12 @@ class CollectorService:
         }
 
         prefixes_seen = 0
+        prefixes_attempted = 0
+        prefixes_failed = 0
         routes_saved = 0
         mitigated_routes = 0
+        asns_completed = 0
+        asns_failed = 0
 
         for item in monitored:
             print(f"[collector] Processing ASN {item.asn} ({item.nome})", flush=True)
@@ -33,6 +39,7 @@ class CollectorService:
                 prefixes = self.ripe_client.get_announced_prefixes(item.asn)
             except RequestException as exc:
                 print(f"[collector] Failed to fetch announced prefixes for AS{item.asn}: {exc}", flush=True)
+                asns_failed += 1
                 continue
 
             ipv4_slash24 = [prefix for prefix in prefixes if prefix.endswith("/24")]
@@ -45,9 +52,11 @@ class CollectorService:
             )
 
             for prefix in limited_prefixes:
+                prefixes_attempted += 1
                 try:
                     bgp_states = self.ripe_client.get_bgp_state(prefix)
                 except RequestException as exc:
+                    prefixes_failed += 1
                     print(f"[collector] Skipping prefix {prefix} after RIPE Stat failure: {exc}", flush=True)
                     continue
 
@@ -90,11 +99,27 @@ class CollectorService:
 
             # Persiste o progresso ao fim de cada ASN para reduzir perda em execucoes longas.
             self.db.commit()
+            asns_completed += 1
             print(
                 f"[collector] Finished AS{item.asn}: "
                 f"routes_saved={routes_saved}, mitigated_routes={mitigated_routes}",
                 flush=True,
             )
+
+        elapsed_seconds = perf_counter() - started_at
+        print(
+            "[collector] Run summary: "
+            f"monitored_asns={len(monitored)}, "
+            f"asns_completed={asns_completed}, "
+            f"asns_failed={asns_failed}, "
+            f"prefixes_selected={prefixes_seen}, "
+            f"prefixes_attempted={prefixes_attempted}, "
+            f"prefixes_failed={prefixes_failed}, "
+            f"routes_saved={routes_saved}, "
+            f"mitigated_routes={mitigated_routes}, "
+            f"duration_seconds={elapsed_seconds:.2f}",
+            flush=True,
+        )
 
         return CollectorRunResponse(
             monitored_asns=len(monitored),

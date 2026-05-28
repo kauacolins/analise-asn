@@ -11,6 +11,7 @@ def main() -> None:
         # Garante os cadastros mínimos antes de executar a primeira coleta automatizada.
         seed_defaults(db)
         result = CollectorService(db).run()
+        print("[collector] JSON summary:", flush=True)
         print(result.model_dump_json(indent=2))
     finally:
         db.close()
