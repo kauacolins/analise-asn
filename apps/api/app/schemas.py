@@ -43,6 +43,19 @@ class BgpRouteRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class RouteFilters(BaseModel):
+    # Filtros compartilhados para consultas analiticas e listagem de rotas.
+    start: datetime | None = None
+    end: datetime | None = None
+    prefix: str | None = None
+    origin_asn: int | None = None
+    mitigator_asn: int | None = None
+    is_mitigated: bool | None = None
+    source_id: str | None = None
+    community_contains: str | None = None
+    as_path_contains: str | None = None
+
+
 class CollectorRunResponse(BaseModel):
     # Resumo da execução de uma coleta manual.
     monitored_asns: int

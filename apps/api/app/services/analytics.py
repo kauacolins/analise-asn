@@ -1,7 +1,5 @@
-from datetime import datetime
-
 from sqlalchemy import distinct, extract, func
-from sqlalchemy.orm import Query, Session
+from sqlalchemy.orm import Session
 
 from apps.api.app.models import BgpRoute, Mitigator
 from apps.api.app.schemas import (
@@ -9,9 +7,11 @@ from apps.api.app.schemas import (
     CountByAsn,
     CountByLabel,
     HourlyIncidencePoint,
+    RouteFilters,
     TimeBucketCount,
     WeekdayIncidencePoint,
 )
+from apps.api.app.services.filters import apply_route_filters
 
 
 WEEKDAY_LABELS = {
@@ -29,8 +29,8 @@ class AnalyticsService:
     def __init__(self, db: Session) -> None:
         self.db = db
 
-    def summary(self, start: datetime | None = None, end: datetime | None = None) -> AnalyticsSummary:
-        query = self._apply_date_filters(self.db.query(BgpRoute), start, end)
+    def summary(self, filters: RouteFilters) -> AnalyticsSummary:
+        query = apply_route_filters(self.db.query(BgpRoute), filters)
         total_routes = query.count()
         mitigated_routes = query.filter(BgpRoute.is_mitigated.is_(True)).count()
         distinct_prefixes = query.with_entities(func.count(distinct(BgpRoute.prefixo))).scalar() or 0
@@ -61,11 +61,10 @@ class AnalyticsService:
 
     def top_mitigators(
         self,
-        start: datetime | None = None,
-        end: datetime | None = None,
+        filters: RouteFilters,
         limit: int = 10,
     ) -> list[CountByAsn]:
-        query = self._apply_date_filters(
+        query = apply_route_filters(
             self.db.query(
                 BgpRoute.asn_mitigador,
                 Mitigator.nome,
@@ -75,8 +74,7 @@ class AnalyticsService:
             .filter(BgpRoute.asn_mitigador.is_not(None))
             .group_by(BgpRoute.asn_mitigador, Mitigator.nome)
             .order_by(func.count(BgpRoute.id).desc(), BgpRoute.asn_mitigador.asc()),
-            start,
-            end,
+            filters,
         )
         return [
             CountByAsn(asn=row.asn_mitigador, name=row.nome, count=row.count)
@@ -85,17 +83,13 @@ class AnalyticsService:
 
     def hourly_incidence(
         self,
-        start: datetime | None = None,
-        end: datetime | None = None,
-        mitigated_only: bool = False,
+        filters: RouteFilters,
     ) -> list[HourlyIncidencePoint]:
         query = self.db.query(
             extract("hour", BgpRoute.collected_at).label("hour"),
             func.count(BgpRoute.id).label("count"),
         )
-        query = self._apply_date_filters(query, start, end)
-        if mitigated_only:
-            query = query.filter(BgpRoute.is_mitigated.is_(True))
+        query = apply_route_filters(query, filters)
         rows = (
             query.group_by("hour")
             .order_by("hour")
@@ -105,17 +99,13 @@ class AnalyticsService:
 
     def weekday_incidence(
         self,
-        start: datetime | None = None,
-        end: datetime | None = None,
-        mitigated_only: bool = False,
+        filters: RouteFilters,
     ) -> list[WeekdayIncidencePoint]:
         query = self.db.query(
             extract("dow", BgpRoute.collected_at).label("weekday"),
             func.count(BgpRoute.id).label("count"),
         )
-        query = self._apply_date_filters(query, start, end)
-        if mitigated_only:
-            query = query.filter(BgpRoute.is_mitigated.is_(True))
+        query = apply_route_filters(query, filters)
         rows = (
             query.group_by("weekday")
             .order_by("weekday")
@@ -132,18 +122,14 @@ class AnalyticsService:
 
     def top_prefixes(
         self,
-        start: datetime | None = None,
-        end: datetime | None = None,
-        mitigated_only: bool = False,
+        filters: RouteFilters,
         limit: int = 10,
     ) -> list[CountByLabel]:
         query = self.db.query(
             BgpRoute.prefixo.label("label"),
             func.count(BgpRoute.id).label("count"),
         )
-        query = self._apply_date_filters(query, start, end)
-        if mitigated_only:
-            query = query.filter(BgpRoute.is_mitigated.is_(True))
+        query = apply_route_filters(query, filters)
         rows = (
             query.group_by(BgpRoute.prefixo)
             .order_by(func.count(BgpRoute.id).desc(), BgpRoute.prefixo.asc())
@@ -154,18 +140,14 @@ class AnalyticsService:
 
     def top_as_paths(
         self,
-        start: datetime | None = None,
-        end: datetime | None = None,
-        mitigated_only: bool = False,
+        filters: RouteFilters,
         limit: int = 10,
     ) -> list[CountByLabel]:
         query = self.db.query(
             BgpRoute.as_path.label("label"),
             func.count(BgpRoute.id).label("count"),
         )
-        query = self._apply_date_filters(query, start, end)
-        if mitigated_only:
-            query = query.filter(BgpRoute.is_mitigated.is_(True))
+        query = apply_route_filters(query, filters)
         rows = (
             query.group_by(BgpRoute.as_path)
             .order_by(func.count(BgpRoute.id).desc())
@@ -176,18 +158,14 @@ class AnalyticsService:
 
     def volume_by_origin_asn(
         self,
-        start: datetime | None = None,
-        end: datetime | None = None,
-        mitigated_only: bool = False,
+        filters: RouteFilters,
         limit: int = 10,
     ) -> list[CountByAsn]:
         query = self.db.query(
             BgpRoute.asn_origem,
             func.count(BgpRoute.id).label("count"),
         )
-        query = self._apply_date_filters(query, start, end)
-        if mitigated_only:
-            query = query.filter(BgpRoute.is_mitigated.is_(True))
+        query = apply_route_filters(query, filters)
         rows = (
             query.filter(BgpRoute.asn_origem.is_not(None))
             .group_by(BgpRoute.asn_origem)
@@ -199,14 +177,13 @@ class AnalyticsService:
 
     def mitigation_frequency(
         self,
-        start: datetime | None = None,
-        end: datetime | None = None,
+        filters: RouteFilters,
     ) -> list[TimeBucketCount]:
         query = self.db.query(
             func.date_trunc("day", BgpRoute.collected_at).label("bucket"),
             func.count(BgpRoute.id).label("count"),
         )
-        query = self._apply_date_filters(query, start, end).filter(BgpRoute.is_mitigated.is_(True))
+        query = apply_route_filters(query, filters).filter(BgpRoute.is_mitigated.is_(True))
         rows = (
             query.group_by("bucket")
             .order_by("bucket")
@@ -216,15 +193,3 @@ class AnalyticsService:
             TimeBucketCount(bucket=row.bucket.strftime("%Y-%m-%d"), count=row.count)
             for row in rows
         ]
-
-    @staticmethod
-    def _apply_date_filters(
-        query: Query,
-        start: datetime | None,
-        end: datetime | None,
-    ) -> Query:
-        if start is not None:
-            query = query.filter(BgpRoute.collected_at >= start)
-        if end is not None:
-            query = query.filter(BgpRoute.collected_at <= end)
-        return query
