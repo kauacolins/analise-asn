@@ -27,22 +27,22 @@ class CollectorService:
         mitigated_routes = 0
 
         for item in monitored:
-            print(f"[collector] Processing ASN {item.asn} ({item.nome})")
+            print(f"[collector] Processing ASN {item.asn} ({item.nome})", flush=True)
             try:
                 prefixes = self.ripe_client.get_announced_prefixes(item.asn)
             except RequestException as exc:
-                print(f"[collector] Failed to fetch announced prefixes for AS{item.asn}: {exc}")
+                print(f"[collector] Failed to fetch announced prefixes for AS{item.asn}: {exc}", flush=True)
                 continue
 
             ipv4_slash24 = [prefix for prefix in prefixes if prefix.endswith("/24")]
             prefixes_seen += len(ipv4_slash24)
-            print(f"[collector] AS{item.asn} returned {len(ipv4_slash24)} /24 prefixes")
+            print(f"[collector] AS{item.asn} returned {len(ipv4_slash24)} /24 prefixes", flush=True)
 
             for prefix in ipv4_slash24:
                 try:
                     bgp_states = self.ripe_client.get_bgp_state(prefix)
                 except RequestException as exc:
-                    print(f"[collector] Skipping prefix {prefix} after RIPE Stat failure: {exc}")
+                    print(f"[collector] Skipping prefix {prefix} after RIPE Stat failure: {exc}", flush=True)
                     continue
 
                 for state in bgp_states:
@@ -86,7 +86,8 @@ class CollectorService:
             self.db.commit()
             print(
                 f"[collector] Finished AS{item.asn}: "
-                f"routes_saved={routes_saved}, mitigated_routes={mitigated_routes}"
+                f"routes_saved={routes_saved}, mitigated_routes={mitigated_routes}",
+                flush=True,
             )
 
         return CollectorRunResponse(

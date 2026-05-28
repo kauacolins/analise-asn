@@ -21,6 +21,7 @@ jobs:
       API_HOST: 0.0.0.0
       API_PORT: 8000
       COLLECTION_TIMEOUT_SECONDS: 30
+      PYTHONUNBUFFERED: "1"
 
     steps:
       - name: Checkout repository
@@ -44,4 +45,4 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run BGP collection
-        run: python collect_bgp.py
+        run: python -u collect_bgp.py
