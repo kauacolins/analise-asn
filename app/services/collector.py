@@ -1,5 +1,6 @@
 from collections.abc import Iterable
 
+from requests import RequestException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -26,12 +27,24 @@ class CollectorService:
         mitigated_routes = 0
 
         for item in monitored:
-            prefixes = self.ripe_client.get_announced_prefixes(item.asn)
+            print(f"[collector] Processing ASN {item.asn} ({item.nome})")
+            try:
+                prefixes = self.ripe_client.get_announced_prefixes(item.asn)
+            except RequestException as exc:
+                print(f"[collector] Failed to fetch announced prefixes for AS{item.asn}: {exc}")
+                continue
+
             ipv4_slash24 = [prefix for prefix in prefixes if prefix.endswith("/24")]
             prefixes_seen += len(ipv4_slash24)
+            print(f"[collector] AS{item.asn} returned {len(ipv4_slash24)} /24 prefixes")
 
             for prefix in ipv4_slash24:
-                bgp_states = self.ripe_client.get_bgp_state(prefix)
+                try:
+                    bgp_states = self.ripe_client.get_bgp_state(prefix)
+                except RequestException as exc:
+                    print(f"[collector] Skipping prefix {prefix} after RIPE Stat failure: {exc}")
+                    continue
+
                 for state in bgp_states:
                     as_path = self._normalize_path(state.get("path", []))
                     if not as_path:
@@ -69,7 +82,13 @@ class CollectorService:
                     if detected_mitigator is not None:
                         mitigated_routes += 1
 
-        self.db.commit()
+            # Persiste o progresso ao fim de cada ASN para reduzir perda em execucoes longas.
+            self.db.commit()
+            print(
+                f"[collector] Finished AS{item.asn}: "
+                f"routes_saved={routes_saved}, mitigated_routes={mitigated_routes}"
+            )
+
         return CollectorRunResponse(
             monitored_asns=len(monitored),
             prefixes_seen=prefixes_seen,
@@ -79,7 +98,7 @@ class CollectorService:
 
     @staticmethod
     def _normalize_path(raw_path: Iterable[int | str]) -> list[int]:
-        # Converte o path em uma lista de inteiros para facilitar análise e persistência.
+        # Converte o path em uma lista de inteiros para facilitar analise e persistencia.
         parsed = []
         for item in raw_path:
             try:

@@ -49,3 +49,47 @@ class CollectorRunResponse(BaseModel):
     prefixes_seen: int
     routes_saved: int
     mitigated_routes: int
+
+
+class AnalyticsSummary(BaseModel):
+    # Resumo geral dos indicadores principais do dataset filtrado.
+    total_routes: int
+    mitigated_routes: int
+    non_mitigated_routes: int
+    mitigation_rate: float
+    distinct_prefixes: int
+    distinct_mitigators: int
+    distinct_origin_asns: int
+    latest_collection_at: datetime | None
+
+
+class CountByLabel(BaseModel):
+    # Série simples para rankings analíticos.
+    label: str
+    count: int
+
+
+class CountByAsn(BaseModel):
+    # Série simples para rankings por ASN.
+    asn: int | None
+    name: str | None = None
+    count: int
+
+
+class TimeBucketCount(BaseModel):
+    # Série temporal agregada para gráficos.
+    bucket: str
+    count: int
+
+
+class HourlyIncidencePoint(BaseModel):
+    # Distribuição de ocorrências por hora do dia.
+    hour: int
+    count: int
+
+
+class WeekdayIncidencePoint(BaseModel):
+    # Distribuição de ocorrências por dia da semana.
+    weekday: int
+    label: str
+    count: int
