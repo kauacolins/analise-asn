@@ -1,0 +1,14 @@
+{
+  "name": "analise-asn",
+  "private": true,
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev:api": "uvicorn apps.api.app.main:app --reload",
+    "collect:api": "python apps/api/collect_bgp.py",
+    "dev:web": "npm run dev --workspace apps/web",
+    "build:web": "npm run build --workspace apps/web",
+    "lint:web": "npm run lint --workspace apps/web"
+  }
+}

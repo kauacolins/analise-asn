@@ -4,10 +4,10 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.bootstrap import seed_defaults
-from app.database import SessionLocal, get_db, init_db
-from app.models import BgpRoute, Mitigator, MonitoredAsn
-from app.schemas import (
+from apps.api.app.bootstrap import seed_defaults
+from apps.api.app.database import SessionLocal, get_db, init_db
+from apps.api.app.models import BgpRoute, Mitigator, MonitoredAsn
+from apps.api.app.schemas import (
     BgpRouteRead,
     CountByAsn,
     CountByLabel,
@@ -21,8 +21,8 @@ from app.schemas import (
     TimeBucketCount,
     WeekdayIncidencePoint,
 )
-from app.services.analytics import AnalyticsService
-from app.services.collector import CollectorService
+from apps.api.app.services.analytics import AnalyticsService
+from apps.api.app.services.collector import CollectorService
 
 app = FastAPI(title="ASN Mitigation Analyzer", version="0.1.0")
 

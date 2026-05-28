@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import requests
 from requests import Response
 
-from app.config import settings
+from apps.api.app.config import settings
 
 
 class RipeStatClient:

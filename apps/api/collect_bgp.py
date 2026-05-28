@@ -1,6 +1,6 @@
-from app.bootstrap import seed_defaults
-from app.database import SessionLocal, init_db
-from app.services.collector import CollectorService
+from apps.api.app.bootstrap import seed_defaults
+from apps.api.app.database import SessionLocal, init_db
+from apps.api.app.services.collector import CollectorService
 
 
 def main() -> None:

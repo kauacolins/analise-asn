@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models import Mitigator, MonitoredAsn
+from apps.api.app.models import Mitigator, MonitoredAsn
 
 
 DEFAULT_MITIGATORS = [

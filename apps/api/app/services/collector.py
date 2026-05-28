@@ -5,10 +5,10 @@ from requests import RequestException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import BgpRoute, Mitigator, MonitoredAsn
-from app.config import settings
-from app.schemas import CollectorRunResponse
-from app.services.ripe_stat import RipeStatClient, extract_timestamp
+from apps.api.app.models import BgpRoute, Mitigator, MonitoredAsn
+from apps.api.app.config import settings
+from apps.api.app.schemas import CollectorRunResponse
+from apps.api.app.services.ripe_stat import RipeStatClient, extract_timestamp
 
 
 class CollectorService:

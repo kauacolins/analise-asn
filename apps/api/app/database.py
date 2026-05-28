@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from app.config import settings
+from apps.api.app.config import settings
 
 
 engine = create_engine(settings.database_url, future=True)

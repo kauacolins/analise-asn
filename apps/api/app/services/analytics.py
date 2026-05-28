@@ -3,8 +3,8 @@ from datetime import datetime
 from sqlalchemy import distinct, extract, func
 from sqlalchemy.orm import Query, Session
 
-from app.models import BgpRoute, Mitigator
-from app.schemas import (
+from apps.api.app.models import BgpRoute, Mitigator
+from apps.api.app.schemas import (
     AnalyticsSummary,
     CountByAsn,
     CountByLabel,
