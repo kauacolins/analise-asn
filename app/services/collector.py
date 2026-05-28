@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import BgpRoute, Mitigator, MonitoredAsn
+from app.config import settings
 from app.schemas import CollectorRunResponse
 from app.services.ripe_stat import RipeStatClient, extract_timestamp
 
@@ -35,10 +36,15 @@ class CollectorService:
                 continue
 
             ipv4_slash24 = [prefix for prefix in prefixes if prefix.endswith("/24")]
-            prefixes_seen += len(ipv4_slash24)
-            print(f"[collector] AS{item.asn} returned {len(ipv4_slash24)} /24 prefixes", flush=True)
+            limited_prefixes = ipv4_slash24[: settings.collection_prefix_limit]
+            prefixes_seen += len(limited_prefixes)
+            print(
+                f"[collector] AS{item.asn} returned {len(ipv4_slash24)} /24 prefixes; "
+                f"processing first {len(limited_prefixes)}",
+                flush=True,
+            )
 
-            for prefix in ipv4_slash24:
+            for prefix in limited_prefixes:
                 try:
                     bgp_states = self.ripe_client.get_bgp_state(prefix)
                 except RequestException as exc:
