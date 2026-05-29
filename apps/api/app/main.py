@@ -120,6 +120,15 @@ def list_routes(
     return query.offset(offset).limit(limit).all()
 
 
+@app.get("/routes/{route_id}", response_model=BgpRouteRead)
+def get_route_detail(route_id: int, db: Session = Depends(get_db)) -> BgpRoute:
+    # Retorna um evento individual para telas de detalhe e investigação.
+    route = db.query(BgpRoute).filter(BgpRoute.id == route_id).first()
+    if route is None:
+        raise HTTPException(status_code=404, detail="Evento de rota não encontrado.")
+    return route
+
+
 @app.post("/collect", response_model=CollectorRunResponse)
 def run_collection(db: Session = Depends(get_db)) -> CollectorRunResponse:
     # Dispara uma coleta manual sem depender do agendamento.
