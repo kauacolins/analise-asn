@@ -147,7 +147,7 @@ GET /analytics/top-as-paths?as_path_contains=64512
 Crie um arquivo `.env` na raiz baseado em `.env.example`:
 
 ```txt
-DATABASE_URL=postgresql+psycopg2://usuario:senha@localhost:5432/analise_asn
+DATABASE_URL=postgresql+psycopg://usuario:senha@localhost:5432/analise_asn
 ```
 
 ## Coleta automática
