@@ -12,6 +12,15 @@ import {
 import { ApiStatus } from "@/components/api-status";
 import { AsnBarChart } from "@/components/charts/asn-bar-chart";
 import { MitigationLineChart } from "@/components/charts/mitigation-line-chart";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { getDashboardSnapshot, pickRouteFilters, tryApi } from "@/lib/api";
 import { formatDateTime, formatNumber, formatPercentage } from "@/lib/format";
 import { SearchParams } from "@/lib/types";
@@ -45,29 +54,34 @@ export default async function DashboardPage({
 
   return (
     <div className="page-shell">
-      <section className="flex flex-col gap-4 rounded-lg border border-slate-200/75 bg-white px-5 py-4 shadow-[0_10px_24px_rgba(148,163,184,0.08)] lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="data-label">Dashboard</p>
-          <h2 className="mt-1 text-2xl font-semibold text-slate-950">
-            Monitoramento BGP
-          </h2>
-        </div>
+      <Card className="py-0 shadow-sm">
+        <CardContent className="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="data-label">Dashboard</p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+              Monitoramento BGP
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              Visao operacional de rotas, superficie observada e eventos com mitigacao.
+            </p>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500">
-            <CalendarDays className="size-4" />
-            Time period
-          </span>
-          <CompactStat
-            label="Ultima coleta"
-            value={formatDateTime(summary.latest_collection_at)}
-          />
-          <CompactStat
-            label="Taxa mitigada"
-            value={formatPercentage(summary.mitigation_rate)}
-          />
-        </div>
-      </section>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="lg" className="text-muted-foreground">
+              <CalendarDays className="size-4" />
+              Periodo
+            </Button>
+            <CompactStat
+              label="Ultima coleta"
+              value={formatDateTime(summary.latest_collection_at)}
+            />
+            <CompactStat
+              label="Taxa mitigada"
+              value={formatPercentage(summary.mitigation_rate)}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {error ? <ApiStatus message={error} /> : null}
 
@@ -103,29 +117,31 @@ export default async function DashboardPage({
       </section>
 
       <section className="dashboard-grid xl:grid-cols-[1.45fr_0.95fr]">
-        <article className="panel">
-          <div className="panel-header">
+        <Card className="gap-0 py-0 shadow-sm">
+          <CardHeader className="border-b px-5 py-4">
             <div>
               <p className="data-label">Serie temporal</p>
-              <h3 className="section-title">Frequencia diaria de mitigacao</h3>
+              <CardTitle className="section-title">Frequencia diaria de mitigacao</CardTitle>
             </div>
-            <span className="rounded-md bg-slate-50 px-3 py-1 text-sm text-slate-500">
+            <CardAction>
+              <Badge variant="secondary" className="h-7 px-3">
               tendencia
-            </span>
-          </div>
-          <div className="panel-body">
+              </Badge>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="px-5 py-4">
             <MitigationLineChart data={mitigationFrequency} />
-          </div>
-        </article>
+          </CardContent>
+        </Card>
 
-        <article className="panel">
-          <div className="panel-header">
+        <Card className="gap-0 py-0 shadow-sm">
+          <CardHeader className="border-b px-5 py-4">
             <div>
               <p className="data-label">Leituras rapidas</p>
-              <h3 className="section-title">Contexto operacional</h3>
+              <CardTitle className="section-title">Contexto operacional</CardTitle>
             </div>
-          </div>
-          <div className="panel-body space-y-3">
+          </CardHeader>
+          <CardContent className="space-y-3 px-5 py-4">
             <Insight
               label="Mitigacao"
               value={formatPercentage(summary.mitigation_rate)}
@@ -141,26 +157,25 @@ export default async function DashboardPage({
               value={formatNumber(summary.distinct_origin_asns)}
               description="ASN de origem unicos observados."
             />
-          </div>
-        </article>
+          </CardContent>
+        </Card>
       </section>
 
       <section className="dashboard-grid xl:grid-cols-2">
-        <article className="panel">
-          <div className="panel-header">
+        <Card className="gap-0 py-0 shadow-sm">
+          <CardHeader className="border-b px-5 py-4">
             <div>
               <p className="data-label">Ranking</p>
-              <h3 className="section-title">Mitigadores mais recorrentes</h3>
+              <CardTitle className="section-title">Mitigadores mais recorrentes</CardTitle>
             </div>
-            <Link
-              href="/eventos"
-              className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
-            >
-              abrir eventos
-              <ArrowUpRight className="size-4" />
-            </Link>
-          </div>
-          <div className="panel-body">
+            <CardAction>
+              <Button variant="ghost" size="sm" render={<Link href="/eventos" />}>
+                abrir eventos
+                <ArrowUpRight className="size-4" />
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="px-5 py-4">
             <AsnBarChart
               data={topMitigators.map((item) => ({
                 label: item.name
@@ -170,17 +185,17 @@ export default async function DashboardPage({
               }))}
               color="var(--chart-3)"
             />
-          </div>
-        </article>
+          </CardContent>
+        </Card>
 
-        <article className="panel">
-          <div className="panel-header">
+        <Card className="gap-0 py-0 shadow-sm">
+          <CardHeader className="border-b px-5 py-4">
             <div>
               <p className="data-label">Origem</p>
-              <h3 className="section-title">ASN com maior volume</h3>
+              <CardTitle className="section-title">ASN com maior volume</CardTitle>
             </div>
-          </div>
-          <div className="panel-body">
+          </CardHeader>
+          <CardContent className="px-5 py-4">
             <AsnBarChart
               data={topOrigins.map((item) => ({
                 label: `AS${item.asn ?? "-"}`,
@@ -188,8 +203,8 @@ export default async function DashboardPage({
               }))}
               color="var(--chart-1)"
             />
-          </div>
-        </article>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );
@@ -216,16 +231,18 @@ function KpiCard({
         : "border-blue-100 bg-blue-50 text-blue-700";
 
   return (
-    <article className="kpi-card">
+    <Card className="kpi-card gap-0 py-0">
       <div className="flex items-center justify-between gap-4">
         <span className="data-label">{label}</span>
-        <span className={`threat-badge ${toneClass}`}>{icon}</span>
+        <Badge variant="outline" className={`h-7 gap-1.5 px-2.5 ${toneClass}`}>
+          {icon}
+        </Badge>
       </div>
       <div className="mt-5">
         <p className="metric-value">{value}</p>
-        <p className="mt-2 text-sm text-slate-500">{helper}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{helper}</p>
       </div>
-    </article>
+    </Card>
   );
 }
 
@@ -239,25 +256,25 @@ function Insight({
   description: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200/75 bg-slate-50/70 p-4">
+    <div className="rounded-lg border bg-muted/45 p-4">
       <div className="flex items-baseline justify-between gap-4">
         <span className="data-label">{label}</span>
-        <span className="font-mono text-base font-semibold text-slate-900">
+        <span className="font-mono text-base font-semibold text-foreground">
           {value}
         </span>
       </div>
-      <p className="mt-3 text-sm leading-6 text-slate-500">{description}</p>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }
 
 function CompactStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="h-9 rounded-md border border-slate-200 bg-white px-3 py-1.5">
-      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-slate-400">
+    <div className="h-9 rounded-lg border bg-background px-3 py-1.5 shadow-xs">
+      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
         {label}
       </p>
-      <p className="text-xs font-semibold text-slate-900">{value}</p>
+      <p className="text-xs font-semibold text-foreground">{value}</p>
     </div>
   );
 }

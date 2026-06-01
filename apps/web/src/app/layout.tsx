@@ -4,7 +4,6 @@ import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search } from "lucide-react";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,10 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
-      <body
-        className={`${inter.variable} ${geistMono.variable} app-shell`}
-      >
+    <html lang="pt-BR" className={`${inter.variable} ${geistMono.variable}`}>
+      <body className="app-shell">
         <TooltipProvider>
           <SidebarProvider defaultOpen={true}>
             <AppSidebar />
@@ -38,23 +35,17 @@ export default function RootLayout({
               <div className="workspace-shell">
                 <header className="topbar-shell">
                   <div className="flex items-center gap-3">
-                    <SidebarTrigger className="rounded-[0.85rem] border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900" />
+                    <SidebarTrigger className="border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground" />
                     <div>
-                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                         Analise ASN
                       </p>
-                      <p className="text-lg font-semibold text-slate-900">Dashboard</p>
+                      <p className="text-base font-semibold text-foreground">Dashboard</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="hidden items-center gap-2 rounded-[0.95rem] border border-slate-200 bg-white px-3 py-2 text-sm text-slate-400 lg:flex">
-                      <Search className="size-4" />
-                      Search
-                    </div>
-                    <button className="flex size-10 items-center justify-center rounded-[0.95rem] border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900">
-                      <Bell className="size-4" />
-                    </button>
+                  <div className="text-sm font-medium text-muted-foreground">
+                    Observabilidade BGP
                   </div>
                 </header>
                 <main className="content-shell">{children}</main>
