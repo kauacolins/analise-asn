@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Radar, Shield } from "lucide-react";
+import { DatabaseZap, LayoutDashboard, ShieldCheck } from "lucide-react";
 
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -19,37 +18,30 @@ import {
 
 const navigationItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/eventos", label: "Eventos", icon: Radar },
+  { href: "/coletas", label: "Coletas", icon: DatabaseZap },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar
-      collapsible="icon"
-      variant="floating"
-      className="border-0 bg-transparent"
-    >
-      <SidebarHeader className="gap-3 px-3 pb-2 pt-3">
-        <div className="flex items-center gap-3 rounded-xl border border-primary/15 bg-primary px-3 py-3 text-primary-foreground shadow-sm">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary-foreground/15">
-            <Shield className="size-5" />
+    <Sidebar collapsible="icon" className="sidebar-shell px-3 py-4">
+      <SidebarHeader className="px-3 py-4">
+        <div className="flex flex-row items-center gap-2">
+          <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <ShieldCheck className="size-5" />
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary-foreground/70">
+            <p className="truncate text-sm font-semibold text-foreground">
               Analise ASN
             </p>
-            <p className="truncate text-sm font-semibold">Network Watch</p>
+            <p className="text-xs text-muted-foreground">Network Monitor</p>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2 pb-3">
-        <SidebarGroup className="px-0 py-2">
-          <SidebarGroupLabel className="px-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Monitoramento
-          </SidebarGroupLabel>
+      <SidebarContent className="px-2 pb-4">
+        <SidebarGroup className="px-0">
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {navigationItems.map((item) => {
@@ -69,15 +61,7 @@ export function AppSidebar() {
                           : "h-10 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                       }
                     >
-                      <span
-                        className={
-                          isActive
-                            ? "flex size-8 items-center justify-center rounded-lg border border-sidebar-accent-foreground/15 bg-background text-sidebar-accent-foreground"
-                            : "flex size-8 items-center justify-center rounded-lg border bg-background text-muted-foreground"
-                        }
-                      >
-                        <Icon className="size-4" />
-                      </span>
+                      <Icon className="size-4" />
                       <span className="font-medium">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

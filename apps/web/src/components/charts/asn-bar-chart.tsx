@@ -40,10 +40,11 @@ export function AsnBarChart({ data, color }: AsnBarChartProps) {
             contentStyle={{
               background: "var(--popover)",
               border: "1px solid var(--border)",
-              borderRadius: "16px",
+              borderRadius: "8px",
+              boxShadow: "0 10px 30px rgba(15, 23, 42, 0.08)",
             }}
           />
-          <Bar dataKey="count" fill={color} radius={[0, 12, 12, 0]} />
+          <Bar dataKey="count" fill={color} radius={[0, 8, 8, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

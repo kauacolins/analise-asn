@@ -3,6 +3,7 @@ import {
   BgpRoute,
   CollectorRunResponse,
   CountByAsn,
+  CountByLabel,
   Mitigator,
   MonitoredAsn,
   RouteFilters,
@@ -33,6 +34,7 @@ export function pickRouteFilters(searchParams: SearchParams): RouteFilters {
     origin_asn: normalizeValue(searchParams.origin_asn),
     mitigator_asn: normalizeValue(searchParams.mitigator_asn),
     is_mitigated: normalizeValue(searchParams.is_mitigated),
+    source_id: normalizeValue(searchParams.source_id),
     community_contains: normalizeValue(searchParams.community_contains),
     as_path_contains: normalizeValue(searchParams.as_path_contains),
   };
@@ -101,7 +103,7 @@ export async function getDashboardSnapshot(filters: RouteFilters) {
     limit: 8,
   });
 
-  const [summary, mitigationFrequency, topMitigators, topOrigins] =
+  const [summary, mitigationFrequency, topMitigators, topOrigins, topPrefixes, topAsPaths] =
     await Promise.all([
       apiFetch<AnalyticsSummary>(`/analytics/summary${buildQuery(filters)}`),
       apiFetch<TimeBucketCount[]>(
@@ -109,6 +111,8 @@ export async function getDashboardSnapshot(filters: RouteFilters) {
       ),
       apiFetch<CountByAsn[]>(`/analytics/top-mitigators${query}`),
       apiFetch<CountByAsn[]>(`/analytics/volume-by-origin-asn${query}`),
+      apiFetch<CountByLabel[]>(`/analytics/top-prefixes${query}`),
+      apiFetch<CountByLabel[]>(`/analytics/top-as-paths${query}`),
     ]);
 
   return {
@@ -116,6 +120,8 @@ export async function getDashboardSnapshot(filters: RouteFilters) {
     mitigationFrequency,
     topMitigators,
     topOrigins,
+    topPrefixes,
+    topAsPaths,
   };
 }
 

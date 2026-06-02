@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
-import "./globals.css";
+
 import { AppSidebar } from "@/components/app-sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -17,7 +22,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Analise ASN",
-  description: "Dashboard de monitoramento e análise de eventos BGP",
+  description: "Dashboard de monitoramento e analise de eventos BGP",
 };
 
 export default function RootLayout({
@@ -33,21 +38,6 @@ export default function RootLayout({
             <AppSidebar />
             <SidebarInset className="app-inset">
               <div className="workspace-shell">
-                <header className="topbar-shell">
-                  <div className="flex items-center gap-3">
-                    <SidebarTrigger className="border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground" />
-                    <div>
-                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                        Analise ASN
-                      </p>
-                      <p className="text-base font-semibold text-foreground">Dashboard</p>
-                    </div>
-                  </div>
-
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Observabilidade BGP
-                  </div>
-                </header>
                 <main className="content-shell">{children}</main>
               </div>
             </SidebarInset>

@@ -7,6 +7,7 @@ export type RouteFilters = {
   origin_asn?: string;
   mitigator_asn?: string;
   is_mitigated?: string;
+  source_id?: string;
   community_contains?: string;
   as_path_contains?: string;
 };

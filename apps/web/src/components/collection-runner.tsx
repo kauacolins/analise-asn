@@ -24,14 +24,14 @@ export function CollectionRunner() {
   }
 
   return (
-    <section className="panel">
+    <section className="monitor-card">
       <div className="panel-header">
         <div>
-          <p className="data-label">Operação</p>
+          <p className="data-label">Operacao</p>
           <h2 className="section-title">Executar coleta manual</h2>
         </div>
         <button
-          className="inline-flex h-11 items-center justify-center rounded-2xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+          className="primary-action h-11 disabled:opacity-60"
           type="button"
           onClick={handleRun}
           disabled={isPending}
@@ -41,12 +41,12 @@ export function CollectionRunner() {
       </div>
 
       <div className="panel-body grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-        <div className="rounded-3xl border border-border/70 bg-background/40 p-5">
+        <div className="rounded-lg border border-border/70 bg-background/50 p-5">
           <p className="data-label">Objetivo</p>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Dispara a coleta imediatamente sem depender do agendamento. Ideal para
-            validar novos ASN monitorados, investigar um aumento recente de eventos
-            ou confirmar se a pipeline está íntegra.
+            Dispara a coleta imediatamente sem depender do agendamento. Ideal
+            para validar ASN monitorados, investigar um aumento recente de
+            eventos ou confirmar se a pipeline esta integra.
           </p>
           {error ? (
             <div className="mt-4 threat-badge threat-critical w-fit normal-case tracking-normal">
@@ -55,8 +55,8 @@ export function CollectionRunner() {
           ) : null}
         </div>
 
-        <div className="rounded-3xl border border-border/70 bg-background/40 p-5">
-          <p className="data-label">Último retorno</p>
+        <div className="rounded-lg border border-border/70 bg-background/50 p-5">
+          <p className="data-label">Ultimo retorno</p>
           {result ? (
             <div className="mt-4 grid gap-3 text-sm">
               <Metric label="ASN monitorados" value={result.monitored_asns} />
@@ -66,7 +66,7 @@ export function CollectionRunner() {
             </div>
           ) : (
             <p className="mt-4 text-sm text-muted-foreground">
-              Ainda não há execução manual nesta sessão.
+              Ainda nao ha execucao manual nesta sessao.
             </p>
           )}
         </div>
@@ -77,7 +77,7 @@ export function CollectionRunner() {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-card/70 px-4 py-3">
+    <div className="flex items-center justify-between rounded-lg border border-border/70 bg-card/70 px-4 py-3">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-mono font-semibold text-foreground">{value}</span>
     </div>

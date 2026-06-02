@@ -40,7 +40,8 @@ export function MitigationLineChart({ data }: MitigationLineChartProps) {
             contentStyle={{
               background: "var(--popover)",
               border: "1px solid var(--border)",
-              borderRadius: "16px",
+              borderRadius: "8px",
+              boxShadow: "0 10px 30px rgba(15, 23, 42, 0.08)",
             }}
           />
           <Line
